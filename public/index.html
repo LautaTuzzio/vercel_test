@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Example</title>
+</head>
+<body>
+    <h1>WebSocket Example</h1>
+    <input type="number" id="numberInput" placeholder="Enter a number">
+    <button onclick="addNumber()">Add Number</button>
+    <ul id="numberList"></ul>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:3000');
+
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (message.type === 'init') {
+                message.data.forEach(number => addNumberToList(number));
+            } else if (message.type === 'update') {
+                addNumberToList(message.number);
+            }
+        };
+
+        function addNumber() {
+            const input = document.getElementById('numberInput');
+            const number = input.value;
+            if (number) {
+                ws.send(JSON.stringify({ type: 'add-number', number: Number(number) }));
+                input.value = '';
+            }
+        }
+
+        function addNumberToList(number) {
+            const ul = document.getElementById('numberList');
+            const li = document.createElement('li');
+            li.textContent = number;
+            ul.appendChild(li);
+        }
+    </script>
+</body>
+</html>
